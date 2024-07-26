@@ -21,17 +21,18 @@ const GeneralSignUp = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json;charset=utf-8' },
         body: JSON.stringify({
-          userEmail: emailValue.email,
+          email: emailValue.email, //원래는 userEmail: ~~~였다.
         }),
       }).then((res) => {
         if (res.status === 200) {
           setIsTimeForVeriCode(true);
           setIsWithinTime(true);
           setTimeCount(180);
-        } else if (res.status === 401) {
+          alert('인증번호가 이메일로 전송되었습니다.')
+        } else if (res.status === 400) {
           alert('이미 존재하는 이메일입니다.');
-        } else if (res.status === 402) {
-          alert('이미 인증이 진행중입니다.');
+        } else {
+          alert('오류가 발생했습니다.');
         }
       });
     },
@@ -48,12 +49,15 @@ const GeneralSignUp = () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify({
-        userEmail: emailValue.email,
+        email: emailValue.email, //원래는 userEmail: ~~~였다.
         code: veriCodeValue,
       }),
     }).then((res) => {
       if (res.status === 200) {
         setIsVerified(true);
+        alert("인증 성공")
+      } else if (res.status === 400) {
+        alert("인증 시간(3분) 초과")
       } else if (res.status === 401) {
         alert('인증번호가 일치 하지 않습니다.');
       }
@@ -71,13 +75,13 @@ const GeneralSignUp = () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify({
-        userEmail: emailValue.email,
+        email: emailValue.email, //원래는 userEmail: ~~~였다.
         password: password,
         nickname: nickname,
       }),
     }).then((res) => {
-      if (res.status === 200) {
-        alert('회원가입이 완료되었습니다.');
+      if (res.status === 201) { //원래는 200이었다.
+        alert('회원가입 성공');
       } else {
         alert('회원가입에 실패했습니다.');
       }
