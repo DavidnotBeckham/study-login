@@ -8,13 +8,16 @@ const GeneralSignUp = () => {
   const [isWithinTime, setIsWithinTime] = useState(false);
   const [timeCount, setTimeCount] = useState(0);
   const [veriCodeValue, setVeriCodeValue] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [nickname, setNickname] = useState('');
 
   const emailRegExpr = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const onValidEmail = useCallback(
     (e) => {
       e.preventDefault();
-      fetch('auth.emailCheck', {
+      fetch('/mindary/accounts/original/send-code', { // 실제 백엔드 주소로 변경
         method: 'POST',
         headers: { 'Content-Type': 'application/json;charset=utf-8' },
         body: JSON.stringify({
@@ -41,7 +44,7 @@ const GeneralSignUp = () => {
 
   const onValidVeriCode = (e) => {
     e.preventDefault();
-    fetch('auth.verifyCode', {
+    fetch('/mindary/accounts/original/verify-code', { // 실제 백엔드 주소로 변경
       method: 'POST',
       headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify({
@@ -57,13 +60,37 @@ const GeneralSignUp = () => {
     });
   };
 
+  const onSubmitSignUp = (e) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    fetch('/mindary/accounts/original/register', { //실제 백엔드 주소로 변경
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json;charset=utf-8' },
+      body: JSON.stringify({
+        userEmail: emailValue.email,
+        password: password,
+        nickname: nickname,
+      }),
+    }).then((res) => {
+      if (res.status === 200) {
+        alert('회원가입이 완료되었습니다.');
+      } else {
+        alert('회원가입에 실패했습니다.');
+      }
+    });
+  };
+
   return (
     <div className="container">
       <div className="header">
         <h1>Mindary</h1>
         <p>회원가입</p>
       </div>
-      <form>
+      <form onSubmit={onSubmitSignUp}>
         <div className="form-group">
           <label htmlFor="email">이메일</label>
           <input
@@ -98,7 +125,43 @@ const GeneralSignUp = () => {
               />
             </div>
             {isVerified ? (
-              <img src="checkImg" alt="확인 완료" className="codeCheckImage" />
+              <>
+                <img src="checkImg" alt="확인 완료" className="codeCheckImage" />
+                <div className="form-group">
+                  <label htmlFor="password">비밀번호 설정하기</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="비밀번호를 입력해주세요"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">비밀번호 확인</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="비밀번호를 다시 입력해주세요"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="nickname">닉네임 설정하기</label>
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    placeholder="닉네임을 입력해주세요"
+                  />
+                </div>
+                <button
+                  className="signUpBtn"
+                  type="submit"
+                  disabled={!password || !confirmPassword || !nickname || password !== confirmPassword}
+                >
+                  회원가입
+                </button>
+              </>
             ) : (
               <button
                 className="codeCheckBtn"
